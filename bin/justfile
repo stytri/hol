@@ -1,0 +1,80 @@
+smaller:='-fmerge-all-constants -ffunction-sections -fdata-sections -fno-unwind-tables -fno-asynchronous-unwind-tables -Wl,--gc-sections -s'
+options:='-I "../../" -DNDEBUG=1 -D__USE_MINGW_ANSI_STDIO=1 -Wall -Wextra -O3'
+debug:='-I "../../" -D__USE_MINGW_ANSI_STDIO=1 -Wall -Wextra -Og -g'
+
+all: align ashex bits bro btee catp cycle enum eol fill fpt genperm lsd nlis otp primes rand rat rx seed select tabs vlq words implementation_defined
+
+align:
+	gcc {{options}} {{smaller}} -o align.exe align.c
+
+ashex:
+	gcc {{options}} {{smaller}} -o ashex.exe ashex.c
+
+bits:
+	gcc {{options}} {{smaller}} -o bits.exe bits.c
+
+bro:
+	gcc {{options}} {{smaller}} -o bro.exe bro.c
+
+btee:
+	gcc {{options}} {{smaller}} -o btee.exe btee.c
+
+catp:
+	gcc {{options}} {{smaller}} -o catp.exe catp.c
+
+cycle:
+	gcc {{options}} {{smaller}} -o cycle.exe cycle.c
+
+enum:
+	gcc {{options}} {{smaller}} -o enum.exe enum.c
+
+eol:
+	gcc {{options}} {{smaller}} -o eol.exe eol.c
+
+fill:
+	gcc {{options}} {{smaller}} -o fill.exe fill.c
+
+fpt:
+	gcc {{options}} {{smaller}} -o fpt.exe fpt.c
+
+genperm:
+	gcc {{options}} {{smaller}} -o genperm.exe genperm.c
+
+lsd:
+	gcc {{options}} {{smaller}} -o lsd.exe lsd.c
+
+nlis:
+	gcc {{options}} {{smaller}} -o nlis.exe nlis.c
+
+otp:
+	gcc {{options}} {{smaller}} -o otp.exe otp.c
+
+primes:
+	gcc {{options}} {{smaller}} -o primes.exe primes.c
+
+rand:
+	gcc {{options}} {{smaller}} -o rand.exe rand.c
+
+rat:
+	gcc {{options}} {{smaller}} -o rat.exe rat.c
+
+rx:
+	gcc {{options}} {{smaller}} -o rx.exe rx.c
+
+seed:
+	gcc {{options}} {{smaller}} -o seed.exe seed.c
+
+select:
+	gcc {{options}} {{smaller}} -o select.exe select.c
+
+tabs:
+	gcc {{options}} {{smaller}} -o tabs.exe tabs.c
+
+vlq:
+	gcc {{options}} {{smaller}} -o vlq.exe vlq.c
+
+words:
+	gcc {{options}} {{smaller}} -o words.exe words.c
+
+implementation_defined:
+	gcc {{options}}  {{smaller}} -o implementation_defined.exe implementation_defined.c
