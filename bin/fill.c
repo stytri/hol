@@ -43,6 +43,7 @@ get_pattern(
 				case 'n': *t++ = '\n'; break;
 				case 't': *t++ = '\t'; break;
 				}
+				esc = false;
 			} else if(*cs == '\\') {
 				esc = true;
 			} else {
@@ -52,7 +53,27 @@ get_pattern(
 		return s;
 	}
 	perror();
-	exit(EXIT_FAILURE);
+	fail();
+}
+
+static void
+fill(
+	char const *arg1,
+	char const *arg2
+) {
+	char       *s, *t;
+	size_t      size    = strtozs(arg1, &t, 0);
+	char const *pattern = get_pattern(arg2);
+	size_t      length  = strlen(pattern);
+	s = calloc((*t ? length : 1), size+1);
+	if(s) {
+		memfill(s, (*t ? (length * size) : size), pattern, length);
+		fputs(s, stdout);
+		free(s);
+		return;
+	}
+	perror();
+	fail();
 }
 
 //------------------------------------------------------------------------------
@@ -62,21 +83,21 @@ main(
 	int    argc,
 	char **argv
 ) {
-	if(argc == 3) {
-		char       *s, *t;
-		size_t      size    = strtozs(argv[1], &t, 0);
-		char const *pattern = get_pattern(argv[2]);
-		size_t      length  = strlen(pattern);
-		s = calloc((*t ? length : 1), size+1);
-		if(s) {
-			memfill(s, (*t ? (length * size) : size), pattern, length);
-			puts(s);
-		} else {
-			perror();
-			fail();
-		}
+	if(argc > 1) {
+		do {
+			if(argc > 2) {
+				fill(argv[1], argv[2]);
+				argv += 2;
+				argc -= 2;
+			} else {
+				fill("1x", argv[1]);
+				argv += 1;
+				argc -= 1;
+			}
+		} while(argc > 1)
+			;
 	} else {
-		puts("usage: fill SIZE PATTERN");
+		puts("usage: fill [[SIZE] PATTERN]...");
 	}
 	return 0;
 }
