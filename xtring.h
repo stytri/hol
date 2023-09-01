@@ -103,6 +103,10 @@ extern uintmax_t streval(char const *cs, char **endp, int base);
 
 //------------------------------------------------------------------------------
 
+extern char *striptrailingzeroes(char *s);
+
+//------------------------------------------------------------------------------
+
 extern void *memfill(void *t, size_t n, void const *s, size_t m);
 
 //------------------------------------------------------------------------------
@@ -128,6 +132,7 @@ extern void *mprintf (size_t *np, char const *f, ...);
 
 #include <hol/nobreak.h>
 #include <stdarg.h>
+#include <ctype.h>
 
 //------------------------------------------------------------------------------
 
@@ -382,6 +387,30 @@ streval(
 	return v;
 }
 
+
+//------------------------------------------------------------------------------
+
+char *
+striptrailingzeroes(
+	char *s
+) {
+	char *p = strchr(s, '.');
+	if(p) {
+		char *t = ++p;
+		for(; isdigit(*t); t++)
+			;
+		if(t > p) {
+			char *r = t;
+			for(p++; (r > p) && (*(r - 1) == '0'); r--)
+				;
+			if(r < t) {
+				while((*r++ = *t++))
+					;
+			}
+		}
+	}
+	return s;
+}
 
 //------------------------------------------------------------------------------
 
