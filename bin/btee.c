@@ -75,6 +75,7 @@ main(
 		{  0, "options:",                NULL },
 		{  1, "-h, --help",              "display help" },
 		{  2, "-a, --append",            "append to FILEs" },
+		{  9, "-l, --line-buffered",     "line buffered" },
 		{  3, "-b, --buffer-size SIZE",  "set buffer SIZE" },
 		{  4, "-n, --no-standard-out",   "no output to standard out" },
 		{  5, "-e, --no-error-messages", "no error messages" },
@@ -93,6 +94,7 @@ main(
 	int exit_code = EXIT_SUCCESS;
 
 	size_t sizeof_buffer     = BUFSIZE;
+	bool   line_buffered     = false;
 	bool   append_to_file    = false;
 	bool   ignore_interrupts = false;
 	bool   standard_out      = true;
@@ -134,6 +136,9 @@ main(
 			case 8:
 				halt_no_output = true;
 				break;
+			case 9:
+				line_buffered = true;
+				break;
 			case 99:
 				ignore_interrupts = true;
 				break;
@@ -161,8 +166,10 @@ main(
 		signal(SIGINT, signal_handler);
 	}
 #ifdef _WIN32
-	_setmode(_fileno(stdin), _O_BINARY);
-	_setmode(_fileno(stdout), _O_BINARY);
+	if(!line_buffered) {
+		_setmode(_fileno(stdin), _O_BINARY);
+		_setmode(_fileno(stdout), _O_BINARY);
+	}
 #endif
 	file[0].name    = NULL;
 	file[0].is_pipe = false;
@@ -173,10 +180,10 @@ main(
 		if(file[i].is_pipe) {
 			file[i].stream = NULL;
 			file[i].name   = ++args;
-			file[i].stream = popen(file[i].name, "wb");
+			file[i].stream = popen(file[i].name, line_buffered ? "w" : "wb");
 		} else {
 			file[i].name   = args;
-			file[i].stream = fopen(file[i].name, append_to_file ? "ab" : "wb");
+			file[i].stream = fopen(file[i].name, append_to_file ? (line_buffered ? "a" : "ab") : (line_buffered ? "w" : "wb"));
 		}
 		if(!file[i].stream) {
 			if(error_messages) perror(file[i].name);
@@ -188,12 +195,22 @@ main(
 	}
 
 	while(!gSignal && (exit_code == EXIT_SUCCESS)) {
-		size_t n = fread(buffer, 1, sizeof_buffer, stdin);
+		size_t n;
+		if(line_buffered) {
+			char const *cs = fgets((char *)buffer, sizeof_buffer, stdin);
+			n = cs ? strlen((char *)buffer) : 0;
+		} else {
+			n = fread(buffer, 1, sizeof_buffer, stdin);
+		}
 		if(n > 0) {
 			size_t o = 0;
 			for(size_t i = 0; i < nfiles; i++) {
 				if(file[i].stream) {
-					fwrite(buffer, 1, n, file[i].stream);
+					if(line_buffered) {
+						fputs((char *)buffer, file[i].stream);
+					} else {
+						fwrite(buffer, 1, n, file[i].stream);
+					}
 					if(ferror(file[i].stream)) {
 						if(error_messages) perror(file[i].name);
 						if(halt_first_error) {
