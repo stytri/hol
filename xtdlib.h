@@ -458,8 +458,8 @@ capacity_of(
 
 static inline size_t
 roundup(
-	size_t const x,
-	size_t const r
+	size_t const r,
+	size_t const x
 ) {
 	if(is_power_of_2(r)) {
 		return (x + (r - 1)) & ~(r - 1);
