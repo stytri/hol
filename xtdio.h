@@ -89,6 +89,7 @@ extern char *mfgets(FILE *in);
 static inline char *mgets(void) { return mfgets(stdin); }
 
 extern char *loadfile(char const *file, size_t *np, size_t *zp);
+extern char *loadrecursive(char const *file, char const *sep, size_t *np, size_t *zp);
 
 extern void errorf(char const *fmt, ...);
 
@@ -461,6 +462,112 @@ loadfile(
 			fclose(f);
 		}
 	}
+	if(np) *np = n;
+	if(zp) *zp = z;
+	return s;
+}
+
+static bool
+recursiveloadfile(
+	char const *file,
+	char      **sp,
+	size_t     *np,
+	size_t     *zp,
+	char const *sep
+) {
+	bool        append_sep = false;
+	char const *cs = strrchr(file, '/');
+	size_t      z, n;
+	char       *t;
+#ifdef _WIN32
+	if(!cs) cs = strrchr(file, '\\');
+#endif
+	if(cs) {
+		char const *ct = cs++;
+		while(ct > file) {
+			ct--;
+			if((*ct == '/')
+#ifdef _WIN32
+				|| (*ct == '\\')
+#endif
+			) {
+				break;
+			}
+		}
+		if(ct == file) {
+			return false;
+		}
+		ct++;
+		z = ct - file;
+		n = strlen(cs);
+		t = malloc(z + n + 1);
+		if(!t) goto fail;
+		strcpy(strncpy(t, file, z) + z, cs);
+		append_sep = recursiveloadfile(t, sp, np, zp, sep);
+		free(t);
+	}
+	FILE *f = fopen(file, "rb");
+	if(f) {
+		if(append_sep) {
+			n = strlen(sep);
+			if(n > (*zp - *np)) {
+				z = roundup(BUFSIZE, *zp + n + 1);
+				t = realloc(*sp, z);
+				if(!t) goto fail;
+				*sp = t;
+				*zp = z;
+			}
+			memcpy(*sp + *np, sep, n);
+			*np += n;
+		}
+		n = BUFSIZE - 1;
+		if(fseek(f, 0, SEEK_END) == 0) {
+			long l = ftell(f);
+			if(l > 0) {
+				n = (size_t)l + 1;
+			}
+		}
+		rewind(f);
+		z = roundup(BUFSIZE, *zp + n + 1);
+		t = realloc(*sp, z);
+		if(!t) goto fail;
+		*sp = t;
+		*zp = z;
+		for(size_t c; (c = fread(*sp + *np, 1, n, f)) > 0; ) {
+			*np += c;
+			if(c < n) break;
+			if(feof(f) || ferror(f)) break;
+			n = BUFSIZE;
+			z = roundup(BUFSIZE, *zp + n + 1);
+			t = realloc(*sp, z);
+			if(!t) goto fail;
+			*sp = t;
+			*zp = z;
+		}
+		if(!ferror(f)) {
+			fclose(f);
+			return (sep && *sep);
+		}
+fail:
+		free(*sp);
+		*sp = NULL;
+		*np = *zp = 0;
+	}
+	return false;
+}
+
+char *
+loadrecursive(
+	char const *file,
+	char const *sep,
+	size_t     *np,
+	size_t     *zp
+) {
+	size_t  n = 0;
+	size_t  z = 0;
+	char   *s = NULL;
+	recursiveloadfile(file, &s, &n, &z, sep);
+	if(s) s[n] = '\0';
 	if(np) *np = n;
 	if(zp) *zp = z;
 	return s;
