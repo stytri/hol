@@ -242,6 +242,9 @@ static struct symbol {
 	TYPE(fpos_t),
 	MACRO(FOPEN_MAX),
 	MACRO(FILENAME_MAX),
+#ifdef PATH_MAX
+	MACRO(PATH_MAX),
+#endif
 	MACRO(BUFSIZ),
 	MACRO(TMP_MAX),
 	MACRO(L_tmpnam),
