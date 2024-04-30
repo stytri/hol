@@ -88,8 +88,12 @@ extern char *mfgets(FILE *in);
 
 static inline char *mgets(void) { return mfgets(stdin); }
 
-extern char *loadfile(char const *file, size_t *np, size_t *zp);
-extern char *loadrecursive(char const *file, char const *sep, size_t *np, size_t *zp);
+extern char *loadfile(char const *file, size_t *np, size_t *zp, char const *mode);
+#define loadfile(loadfile__file,loadfile__np,loadfile__zp,...) \
+	(loadfile)((loadfile__file),(loadfile__np),(loadfile__zp),__VA_ARGS__+0)
+extern char *loadrecursive(char const *file, char const *sep, size_t *np, size_t *zp, char const *mode);
+#define loadrecursive(loadrecursive__recursive,loadrecursive__np,loadrecursive__zp,...) \
+	(loadrecursive)((loadrecursive__recursive),(loadrecursive__np),(loadrecursive__zp),__VA_ARGS__+0)
 
 extern void errorf(char const *fmt, ...);
 
@@ -422,15 +426,16 @@ mfgets(
 }
 
 char *
-loadfile(
+(loadfile)(
 	char const *file,
 	size_t     *np,
-	size_t     *zp
+	size_t     *zp,
+	char const *mode
 ) {
 	size_t  n = 0;
 	size_t  z = 0;
 	char   *s = NULL;
-	FILE   *f = fopen(file, "rb");
+	FILE   *f = fopen(file, (mode && (*mode == 'b')) ? "rb" : "r");
 	if(f) {
 		size_t m = z = BUFSIZE - 1;
 		if(fseek(f, 0, SEEK_END) == 0) {
@@ -473,6 +478,7 @@ recursiveloadfile(
 	char      **sp,
 	size_t     *np,
 	size_t     *zp,
+	char const *mode,
 	char const *sep
 ) {
 	bool        append_sep = false;
@@ -503,10 +509,10 @@ recursiveloadfile(
 		t = malloc(z + n + 1);
 		if(!t) goto fail;
 		strcpy(strncpy(t, file, z) + z, cs);
-		append_sep = recursiveloadfile(t, sp, np, zp, sep);
+		append_sep = recursiveloadfile(t, sp, np, zp, sep, mode);
 		free(t);
 	}
-	FILE *f = fopen(file, "rb");
+	FILE *f = fopen(file, mode);
 	if(f) {
 		if(append_sep) {
 			n = strlen(sep);
@@ -557,16 +563,17 @@ fail:
 }
 
 char *
-loadrecursive(
+(loadrecursive)(
 	char const *file,
 	char const *sep,
 	size_t     *np,
-	size_t     *zp
+	size_t     *zp,
+	char const *mode
 ) {
 	size_t  n = 0;
 	size_t  z = 0;
 	char   *s = NULL;
-	recursiveloadfile(file, &s, &n, &z, sep);
+	recursiveloadfile(file, &s, &n, &z, sep, (mode && (*mode == 'b')) ? "rb" : "r");
 	if(s) s[n] = '\0';
 	if(np) *np = n;
 	if(zp) *zp = z;
