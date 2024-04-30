@@ -92,8 +92,8 @@ extern char *loadfile(char const *file, size_t *np, size_t *zp, char const *mode
 #define loadfile(loadfile__file,loadfile__np,loadfile__zp,...) \
 	(loadfile)((loadfile__file),(loadfile__np),(loadfile__zp),__VA_ARGS__+0)
 extern char *loadrecursive(char const *file, char const *sep, size_t *np, size_t *zp, char const *mode);
-#define loadrecursive(loadrecursive__recursive,loadrecursive__np,loadrecursive__zp,...) \
-	(loadrecursive)((loadrecursive__recursive),(loadrecursive__np),(loadrecursive__zp),__VA_ARGS__+0)
+#define loadrecursive(loadrecursive__file,loadrecursive__sep,loadrecursive__np,loadrecursive__zp,...) \
+	(loadrecursive)((loadrecursive__file),(loadrecursive__sep),(loadrecursive__np),(loadrecursive__zp),__VA_ARGS__+0)
 
 extern void errorf(char const *fmt, ...);
 
