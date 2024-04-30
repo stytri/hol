@@ -478,8 +478,8 @@ recursiveloadfile(
 	char      **sp,
 	size_t     *np,
 	size_t     *zp,
-	char const *mode,
-	char const *sep
+	char const *sep,
+	char const *mode
 ) {
 	bool        append_sep = false;
 	char const *cs = strrchr(file, '/');
