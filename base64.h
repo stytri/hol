@@ -257,7 +257,7 @@ base64__encode(
 			continue;
 #		undef BASE64__GET
 		}
-		if(d) *cs++ = base64__enchar(c);
+		if(d) *cs++ = base64__enchar(c << d);
 #if !(BASE64__ASCII_MAP || BASE64__UTF8_MAP)
 	}
 #endif
