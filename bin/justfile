@@ -2,13 +2,16 @@ smaller:='-fmerge-all-constants -ffunction-sections -fdata-sections -fno-unwind-
 options:='-I "../../" -DNDEBUG=1 -D__USE_MINGW_ANSI_STDIO=1 -Wall -Wextra -O3'
 debug:='-I "../../" -D__USE_MINGW_ANSI_STDIO=1 -Wall -Wextra -Og -g'
 
-all: align ashex bits bro btee catp cycle enum eol fill fpt genperm lsd nlis otp primes rand rat rx seed select tabs vlq words implementation_defined
+all: align ashex base64 bits bro btee catp cycle enum eol fill fpt genperm lsd nlis otp primes rand rat rx seed select tabs vlq words implementation_defined
 
 align:
 	gcc {{options}} {{smaller}} -o align.exe align.c
 
 ashex:
 	gcc {{options}} {{smaller}} -o ashex.exe ashex.c
+
+base64:
+	gcc {{options}} {{smaller}} -DBASE64__UTF8_MAP=1 -o base64.exe base64.c
 
 bits:
 	gcc {{options}} {{smaller}} -o bits.exe bits.c

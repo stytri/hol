@@ -41,6 +41,7 @@ SOFTWARE.
 #define HOL_ECHOF_H__IMPLEMENTATION   (1)
 #define HOL_OPTGET_H__IMPLEMENTATION  (1)
 #define HOL_FNMATCH_H__IMPLEMENTATION (1)
+#define HOL_BASE64_H__IMPLEMENTATION  (1)
 
 #include <hol/holib.h>
 
