@@ -31,9 +31,13 @@ SOFTWARE.
 #include <hol/xtdint.h>
 #include <hol/xtring.h>
 #include <hol/xtdio.h>
+#include <hol/xfile.h>
 #include <hol/xtime.h>
 #include <hol/xtype.h>
 #include <hol/xrand.h>
+#include <hol/random.h>
+#include <hol/mwint.h>
+#include <hol/mwnlis.h>
 #include <hol/utf8.h>
 #include <hol/array.h>
 #include <hol/hampt.h>

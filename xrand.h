@@ -375,9 +375,6 @@ xrand##XRAND__Nbits( \
 	XRAND__BODY(XRAND__Nbits, , return s) \
 }
 
-#if (HOL_XRAND_H__SELECT & 128) != 0
-XRAND(128)
-#endif
 #if (HOL_XRAND_H__SELECT & 64) != 0
 XRAND(64)
 #endif
