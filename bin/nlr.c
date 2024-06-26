@@ -58,6 +58,7 @@ SOFTWARE.
 
 //------------------------------------------------------------------------------
 
+#define BASE64__UTF8_MAP (1)
 #include <hol/holibc.h>
 #ifdef _WIN32
 #include <fcntl.h>
@@ -380,6 +381,23 @@ main(
 		memzero((void *)key, keylen);
 		xfclose(out);
 		fail();
+	}
+	if(keytype < 2) {
+		size_t n = base64declen(keylen);
+		char  *s = calloc(n, sizeof(*s));
+		if(!s) {
+			perror();
+			memzero((void *)key, keylen);
+			xfclose(out);
+			fail();
+		}
+		base64decode(n, s, key, 0);
+		memzero((void *)key, keylen);
+		if(keytype) {
+			free((void *)key);
+		}
+		key = s;
+		keylen = n;
 	}
 	k = initialize(k, key, keylen);
 	memzero((void *)key, keylen);
