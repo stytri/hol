@@ -351,7 +351,6 @@ XFILE *(xfopen)(char const *name, char const *mode) {
 	}
 	return f;
 }
-#define xfopen(xfopen__name,...)  (xfopen)((xfopen__name),__VA_ARGS__+0)
 
 XFILE *xtmpfile(void) {
 	return xfopen("tmp:");
