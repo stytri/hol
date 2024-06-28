@@ -38,6 +38,32 @@ static inline int mwiszero(size_t z, uint64_t v[z]) {
 	return !u;
 }
 
+static inline void mwgry(size_t z, uint64_t v[z]) {
+	size_t m = z - 1;
+	for(size_t i = 0; i < m; i++) {
+		v[i] ^= (v[i + 1] << 63) | (v[i] >> 1);
+	}
+	v[m] ^= v[m] >> 1;
+}
+
+static inline void mwinc(size_t z, uint64_t v[z], uint64_t w) {
+	v[0] += w;
+	size_t c = v[0] < w;
+	if(c) for(size_t i = 1; c && (i < z); i++) {
+		v[i] += c;
+		c = !v[i];
+	}
+}
+
+static inline void mwdec(size_t z, uint64_t v[z], uint64_t w) {
+	size_t b = v[0] < w;
+	v[0] -= w;
+	if(b) for(size_t i = 1; b && (i < z); i++) {
+		v[i] -= b;
+		b = !~v[i];
+	}
+}
+
 static inline void mwior(size_t z, uint64_t v[z], uint64_t w[z]) {
 	for(size_t i = 0; i < z; i++) {
 		v[i] |= w[i];
@@ -141,6 +167,9 @@ static inline void mwrol(size_t z, uint64_t v[z], unsigned n) {
 \
 typedef struct { uint64_t u[(NLIS__Nbits/64)]; } uint##NLIS__Nbits##_t; \
 static inline int iszero##NLIS__Nbits(uint##NLIS__Nbits##_t v) { return mwiszero((NLIS__Nbits/64), v.u ); } \
+static inline uint##NLIS__Nbits##_t gry##NLIS__Nbits(uint##NLIS__Nbits##_t v) { mwgry((NLIS__Nbits/64), v.u ); return v; } \
+static inline uint##NLIS__Nbits##_t inc##NLIS__Nbits(uint##NLIS__Nbits##_t v, uint64_t w) { mwinc((NLIS__Nbits/64), v.u, w); return v; } \
+static inline uint##NLIS__Nbits##_t dec##NLIS__Nbits(uint##NLIS__Nbits##_t v, uint64_t w) { mwdec((NLIS__Nbits/64), v.u, w); return v; } \
 static inline uint##NLIS__Nbits##_t ior##NLIS__Nbits(uint##NLIS__Nbits##_t v, uint##NLIS__Nbits##_t w) { mwior((NLIS__Nbits/64), v.u, w.u); return v; } \
 static inline uint##NLIS__Nbits##_t xor##NLIS__Nbits(uint##NLIS__Nbits##_t v, uint##NLIS__Nbits##_t w) { mwxor((NLIS__Nbits/64), v.u, w.u); return v; } \
 static inline uint##NLIS__Nbits##_t and##NLIS__Nbits(uint##NLIS__Nbits##_t v, uint##NLIS__Nbits##_t w) { mwand((NLIS__Nbits/64), v.u, w.u); return v; } \

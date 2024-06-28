@@ -34,13 +34,6 @@ SOFTWARE.
 \
 MWINT(NLIS__Nbits) \
 \
-static uint##NLIS__Nbits##_t \
-nlis##NLIS__Nbits##__g( \
-	uint##NLIS__Nbits##_t x \
-) { \
-	return xor##NLIS__Nbits(x, shr##NLIS__Nbits(x, 1)); \
-} \
-\
 static inline uint##NLIS__Nbits##_t \
 nlis##NLIS__Nbits##__round( \
 	uint##NLIS__Nbits##_t x, \
@@ -48,16 +41,16 @@ nlis##NLIS__Nbits##__round( \
 ) { \
 	unsigned i = 1; \
 	do { \
-		x = nlis##NLIS__Nbits##__g(x); \
+		x = gry##NLIS__Nbits(x); \
 		x = rol##NLIS__Nbits(x, i); \
 		i <<= 1; \
 	} while(i < NLIS__Nbits) \
 		; \
-	x = nlis##NLIS__Nbits##__g(x); \
+	x = gry##NLIS__Nbits(x); \
 	do { \
 		i >>= 1; \
 		x = rol##NLIS__Nbits(x, i); \
-		x = nlis##NLIS__Nbits##__g(x); \
+		x = gry##NLIS__Nbits(x); \
 	} while(i != 1) \
 		; \
 	return add##NLIS__Nbits(x, k); \
