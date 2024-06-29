@@ -134,10 +134,24 @@ static inline int swapindex(int i, uint64_t x) {
 	return (i * 8) + ((x ^ (x >> 3) ^ (x >> 5)) & 7);
 }
 
+struct genrand {
+	uint512_t k, c, r;
+	size_t    x;
+};
+static uint64_t genrand(void *ctx) {
+	struct genrand *g = ctx;
+	if(g->x > 7) {
+		g->r = nlis512(g->c, g->k, ROUNDS);
+		g->c = inc512(g->c, 1);
+		g->x = 0;
+	}
+	return g->r.u[g->x++];
+}
+
 static bool encode(size_t z, uint8_t b[z], uint512_t k, XFILE *in, XFILE *out) {
-	bool    ok = false;
-	XRAND64 g;
-	ssize_t m = getrandom(&g, sizeof(g), 0);
+	bool           ok = false;
+	struct genrand g;
+	ssize_t        m = getrandom(&g, sizeof(g), 0);
 	if(m != sizeof(g)) {
 		if(m < 0) m = 0;
 		fallback_getrandom((uint8_t*)&g + m, sizeof(g) - m, 0);
@@ -156,14 +170,14 @@ static bool encode(size_t z, uint8_t b[z], uint512_t k, XFILE *in, XFILE *out) {
 				}
 			}
 			size_t m = 56 - (n % 56);
-			fillrandom(fallback_genrandom, &g, &b[n], m);
+			fillrandom(genrand, &g, &b[n], m);
 			m += n;
 			for(b[n++] |= 0x80; n < m; b[n++] &= 0x7F)
 				;
 			eof = true;
 		}
 		for(size_t m = 0; m < n; m += 56) {
-			uint64_t r = xrand64(&g);
+			uint64_t r = genrand(&g);
 			uint64tobytes(r, &w[0]);
 			memcpy(&w[8], &b[m], 56);
 			uint8_t t = w[0];
