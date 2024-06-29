@@ -34,37 +34,29 @@ SOFTWARE.
 \
 MWINT(NLIS__Nbits) \
 \
-static inline uint##NLIS__Nbits##_t \
-nlis##NLIS__Nbits##__round( \
-	uint##NLIS__Nbits##_t x, \
-	uint##NLIS__Nbits##_t k \
-) { \
-	unsigned i = 1; \
-	do { \
-		x = gry##NLIS__Nbits(x); \
-		x = rol##NLIS__Nbits(x, i); \
-		i <<= 1; \
-	} while(i < NLIS__Nbits) \
-		; \
-	x = gry##NLIS__Nbits(x); \
-	do { \
-		i >>= 1; \
-		x = rol##NLIS__Nbits(x, i); \
-		x = gry##NLIS__Nbits(x); \
-	} while(i != 1) \
-		; \
-	return add##NLIS__Nbits(x, k); \
-} \
-\
 uint##NLIS__Nbits##_t \
 nlis##NLIS__Nbits( \
 	uint##NLIS__Nbits##_t x, \
 	uint##NLIS__Nbits##_t k, \
 	unsigned              n \
 ) { \
-	x = sub##NLIS__Nbits(x, k); \
+	mwsub(MWINT_WORDS(NLIS__Nbits), x.u, k.u); \
 	while(n-- > 0) { \
-		x = nlis##NLIS__Nbits##__round(x, k); \
+		unsigned i = 1; \
+		do { \
+			mwgry(MWINT_WORDS(NLIS__Nbits), x.u); \
+			mwrol(MWINT_WORDS(NLIS__Nbits), x.u, i); \
+			i <<= 1; \
+		} while(i < NLIS__Nbits) \
+			; \
+		mwgry(MWINT_WORDS(NLIS__Nbits), x.u); \
+		do { \
+			i >>= 1; \
+			mwrol(MWINT_WORDS(NLIS__Nbits), x.u, i); \
+			mwgry(MWINT_WORDS(NLIS__Nbits), x.u); \
+		} while(i != 1) \
+			; \
+		mwadd(MWINT_WORDS(NLIS__Nbits), x.u, k.u); \
 	} \
 	return x; \
 } \
@@ -74,31 +66,8 @@ ulis##NLIS__Nbits##__g( \
 	uint##NLIS__Nbits##_t x \
 ) { \
 	for(unsigned n = (NLIS__Nbits / 2); n != 0; n >>= 1) { \
-		x = xor##NLIS__Nbits(x, shr##NLIS__Nbits(x, n)); \
+		mwxor(MWINT_WORDS(NLIS__Nbits), x.u, shr##NLIS__Nbits(x, n).u); \
 	} \
-	return x; \
-} \
-\
-static inline uint##NLIS__Nbits##_t \
-ulis##NLIS__Nbits##__round( \
-	uint##NLIS__Nbits##_t x, \
-	uint##NLIS__Nbits##_t k \
-) { \
-	x = sub##NLIS__Nbits(x, k); \
-	unsigned i = 1; \
-	do { \
-		x = ulis##NLIS__Nbits##__g(x); \
-		x = ror##NLIS__Nbits(x, i); \
-		i <<= 1; \
-	} while(i < NLIS__Nbits) \
-		; \
-	x = ulis##NLIS__Nbits##__g(x); \
-	do { \
-		i >>= 1; \
-		x = ror##NLIS__Nbits(x, i); \
-		x = ulis##NLIS__Nbits##__g(x); \
-	} while(i != 1) \
-		; \
 	return x; \
 } \
 \
@@ -109,9 +78,24 @@ ulis##NLIS__Nbits( \
 	unsigned              n \
 ) { \
 	while(n-- > 0) { \
-		x = ulis##NLIS__Nbits##__round(x, k); \
+		mwsub(MWINT_WORDS(NLIS__Nbits), x.u, k.u); \
+		unsigned i = 1; \
+		do { \
+			x = ulis##NLIS__Nbits##__g(x); \
+			mwror(MWINT_WORDS(NLIS__Nbits), x.u, i); \
+			i <<= 1; \
+		} while(i < NLIS__Nbits) \
+			; \
+		x = ulis##NLIS__Nbits##__g(x); \
+		do { \
+			i >>= 1; \
+			mwror(MWINT_WORDS(NLIS__Nbits), x.u, i); \
+			x = ulis##NLIS__Nbits##__g(x); \
+		} while(i != 1) \
+			; \
 	} \
-	return add##NLIS__Nbits(x, k); \
+	mwadd(MWINT_WORDS(NLIS__Nbits), x.u, k.u); \
+	return x; \
 }
 
 //------------------------------------------------------------------------------

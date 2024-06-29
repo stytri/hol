@@ -161,6 +161,10 @@ static inline void mwrol(size_t z, uint64_t v[z], unsigned n) {
 	}
 }
 
+static inline void mwror(size_t z, uint64_t v[z], unsigned n) {
+	mwrol(z, v, -n);
+}
+
 //------------------------------------------------------------------------------
 
 #define MWINT_BITS(MWINT__Nbits)  (((MWINT__Nbits) + 63) & ~64)
@@ -178,9 +182,9 @@ static inline uint##MWINT__Nbits##_t xor##MWINT__Nbits(uint##MWINT__Nbits##_t v,
 static inline uint##MWINT__Nbits##_t and##MWINT__Nbits(uint##MWINT__Nbits##_t v, uint##MWINT__Nbits##_t w) { mwand(MWINT_WORDS(MWINT__Nbits), v.u, w.u); return v; } \
 static inline uint##MWINT__Nbits##_t add##MWINT__Nbits(uint##MWINT__Nbits##_t v, uint##MWINT__Nbits##_t w) { mwadd(MWINT_WORDS(MWINT__Nbits), v.u, w.u); return v; } \
 static inline uint##MWINT__Nbits##_t sub##MWINT__Nbits(uint##MWINT__Nbits##_t v, uint##MWINT__Nbits##_t w) { mwsub(MWINT_WORDS(MWINT__Nbits), v.u, w.u); return v; } \
-static inline uint##MWINT__Nbits##_t shl##MWINT__Nbits(uint##MWINT__Nbits##_t v, unsigned n) { mwshl(MWINT_WORDS(MWINT__Nbits), v.u,  n); return v; } \
-static inline uint##MWINT__Nbits##_t shr##MWINT__Nbits(uint##MWINT__Nbits##_t v, unsigned n) { mwshr(MWINT_WORDS(MWINT__Nbits), v.u,  n); return v; } \
-static inline uint##MWINT__Nbits##_t rol##MWINT__Nbits(uint##MWINT__Nbits##_t v, unsigned n) { mwrol(MWINT_WORDS(MWINT__Nbits), v.u,  n); return v; } \
-static inline uint##MWINT__Nbits##_t ror##MWINT__Nbits(uint##MWINT__Nbits##_t v, unsigned n) { mwrol(MWINT_WORDS(MWINT__Nbits), v.u, -n); return v; }
+static inline uint##MWINT__Nbits##_t shl##MWINT__Nbits(uint##MWINT__Nbits##_t v, unsigned n) { mwshl(MWINT_WORDS(MWINT__Nbits), v.u, n); return v; } \
+static inline uint##MWINT__Nbits##_t shr##MWINT__Nbits(uint##MWINT__Nbits##_t v, unsigned n) { mwshr(MWINT_WORDS(MWINT__Nbits), v.u, n); return v; } \
+static inline uint##MWINT__Nbits##_t rol##MWINT__Nbits(uint##MWINT__Nbits##_t v, unsigned n) { mwrol(MWINT_WORDS(MWINT__Nbits), v.u, n); return v; } \
+static inline uint##MWINT__Nbits##_t ror##MWINT__Nbits(uint##MWINT__Nbits##_t v, unsigned n) { mwror(MWINT_WORDS(MWINT__Nbits), v.u, n); return v; }
 
 #endif//ndef HOL_MWINT_H
