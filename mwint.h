@@ -111,7 +111,7 @@ static inline void mwshl(size_t z, uint64_t v[z], unsigned n) {
 		}
 	}
 	if(n > 0) {
-		for(size_t i = m; i > s; i++) {
+		for(size_t i = m; i > s; i--) {
 			v[i] = (v[i] << n) | (v[i-1] >> (64 - n));
 		}
 		v[s] = v[s] << n;
