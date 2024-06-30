@@ -69,6 +69,9 @@ int main(int argc, char **argv) {
 #ifdef TIMESTAMP_CPU_TIME
 		{ 13, "--cpu-time",        NULL },
 #endif
+#ifdef TIMESTAMP_PROCTIME
+		{ 14, "--proctime",        NULL },
+#endif
 	};
 	static size_t const n_options = (sizeof(options) / sizeof(options[0]));
 
@@ -100,6 +103,9 @@ int main(int argc, char **argv) {
 #endif
 #ifdef TIMESTAMP_CPU_TIME
 			case 13: timer = TIMESTAMP_CPU_TIME; break;
+#endif
+#ifdef TIMESTAMP_PROCTIME
+			case 14: timer = TIMESTAMP_PROCTIME; break;
 #endif
 			default:
 				errorf("invalid option: %s", args);

@@ -45,6 +45,9 @@ SOFTWARE.
 #ifdef CLOCK_PROCESS_CPUTIME_ID
 #define TIMESTAMP_CPU_TIME  (4)
 #endif
+#ifdef _WIN32
+#define TIMESTAMP_PROCTIME  (5)
+#endif
 
 extern void timestamp    (int timer, struct timespec *tp);
 extern void time_interval(struct timespec const *t1, struct timespec const *t2, struct timespec *tp);
@@ -58,6 +61,11 @@ extern void time_per     (struct timespec const *ti, size_t n, struct timespec *
 
 #ifdef HOL_XTIME_H__IMPLEMENTATION
 #undef HOL_XTIME_H__IMPLEMENTATION
+
+#ifdef TIMESTAMP_PROCTIME
+#include <windef.h>
+#include <wtypesbase.h>
+#endif
 
 //------------------------------------------------------------------------------
 
@@ -83,6 +91,22 @@ timestamp(
 #ifdef TIMESTAMP_CPU_TIME
 	case TIMESTAMP_CPU_TIME:
 		clock_gettime(CLOCK_PROCESS_CPUTIME_ID, tp);
+		break;
+#endif
+#ifdef TIMESTAMP_PROCTIME
+	case TIMESTAMP_PROCTIME: {
+			FILETIME createTime;
+			FILETIME exitTime;
+			FILETIME kernelTime;
+			FILETIME userTime;
+			if(GetProcessTimes(GetCurrentProcess(), &createTime, &exitTime, &kernelTime, &userTime)) {
+				uint64_t ut = ((uint64_t)userTime.dwHighDateTime << 32) | userTime.dwLowDateTime;
+				uint64_t kt = ((uint64_t)kernelTime.dwHighDateTime << 32) | kernelTime.dwLowDateTime;
+				uint64_t ct = (ut + kt) * 100;
+				tp->tv_sec  = ct / UINT64_C(1000000000);
+				tp->tv_nsec = ct % UINT64_C(1000000000);
+			}
+		}
 		break;
 #endif
 	default:
