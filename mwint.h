@@ -99,42 +99,43 @@ static inline void mwsub(size_t z, uint64_t v[z], uint64_t w[z]) {
 }
 
 static inline void mwshl(size_t z, uint64_t v[z], unsigned n) {
-	size_t m = z - 1, s = 0;
 	n %= ((z * sizeof(*v)) * CHAR_BIT);
-	if(n > 63) {
-		for(; n > 63; n -= 64) {
-			for(size_t i = m; i > s; i--) {
-				v[i] = v[i-1];
-			}
-			v[s] = 0;
-			s++;
+	int m = z - 1, l = n / 64, i;
+	if(l > 0) {
+		n %= 64;
+		for(i = m; i >= l; i--) {
+			v[i] = v[i - l];
+		}
+		for(; i >= 0; i--) {
+			v[i] = 0;
 		}
 	}
 	if(n > 0) {
-		for(size_t i = m; i > s; i--) {
+		for(i = m; i > l; i--) {
 			v[i] = (v[i] << n) | (v[i-1] >> (64 - n));
 		}
-		v[s] = v[s] << n;
+		v[l] = v[l] << n;
 	}
 }
 
 static inline void mwshr(size_t z, uint64_t v[z], unsigned n) {
-	size_t m = z - 1;
 	n %= ((z * sizeof(*v)) * CHAR_BIT);
-	if(n > 63) {
-		for(; n > 63; n -= 64) {
-			for(size_t i = 0; i < m; i++) {
-				v[i] = v[i+1];
-			}
-			v[m] = 0;
-			m--;
+	int m = z - 1, w = m, l = n / 64, i;
+	if(l > 0) {
+		w -= l;
+		n %= 64;
+		for(i = 0; i < w; i++) {
+			v[i] = v[i + l];
+		}
+		for(; i < m; i++) {
+			v[i] = 0;
 		}
 	}
 	if(n > 0) {
-		for(size_t i = 0; i < m; i++) {
+		for(i = 0; i < w; i++) {
 			v[i] = (v[i+1] << (64 - n)) | (v[i] >> n);
 		}
-		v[m] = v[m] >> n;
+		v[w] = v[w] >> n;
 	}
 }
 
