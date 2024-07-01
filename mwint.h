@@ -139,48 +139,16 @@ static inline void mwshr(size_t z, uint64_t v[z], unsigned n) {
 	}
 }
 
-static inline void mw__swap(uint64_t *a, uint64_t *b) {
-	uint64_t t = *a;
-	*a = *b;
-	*b = t;
-}
-#define mw__swap(mw__swap__a,mw__swap__b)  (mw__swap)(&(mw__swap__a),&(mw__swap__b))
-
 static inline void mwrol(size_t z, uint64_t v[z], unsigned n) {
+	size_t m = z - 1;
 	n %= ((z * sizeof(*v)) * CHAR_BIT);
-	size_t m = z - 1, l = n / 64;
-	if(l > 0) {
-		size_t h = z / 2;
-		n %= 64;
-		if(l < h) {
-			if(l > 1) {
-				for(size_t k = 0; k < l; k++) {
-					for(size_t i = k, j = (z - l) + k; i < j; ) {
-						mw__swap(v[i++], v[j]);
-					}
-				}
-			} else {
-				for(size_t i = 0, j = z - l; i < j; ) {
-					mw__swap(v[i++], v[j]);
-				}
+	if(n > 63) {
+		for(; n > 63; n -= 64) {
+			uint64_t y = v[m];
+			for(size_t i = m; i-- > 0; ) {
+				v[i+1] = v[i];
 			}
-		} else if(l > h) {
-			l = z - l;
-			if(l > 1) {
-				for(size_t k = 0; k < l; k++) {
-					for(size_t i = m - k, j = (l - 1) - k; i > j; ) {
-						mw__swap(v[i--], v[j]);
-					}
-				}
-			} else {
-				for(size_t i = m, j = l - 1; i > j; ) {
-					mw__swap(v[i--], v[j]);
-				}
-			}
-		} else {
-			for(size_t i = 0, j = l; j < z; ) {
-				mw__swap(v[i++], v[j++]);
-			}
+			v[0] = y;
 		}
 	}
 	if(n > 0) {
