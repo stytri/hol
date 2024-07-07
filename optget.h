@@ -284,21 +284,18 @@ static char const *
 optuse__progname(
 	char const *prog
 ) {
-	size_t m = strlen(prog);
-	size_t n = m;
-	for(; n > 0; n--) {
-		int c = prog[n-1];
-		if(c == '/') break;
-#ifdef _WIN32
-		if(c == '\\') break;
-		if(c == ':') break;
+	char const *file = strrchr(prog, '/');
+#if defined _WIN32
+	if(!file) file = strrchr(prog, '\\');
+	if(!file) file = strrchr(prog, ':');
 #endif
-		if(c == '.') m = n - 1;
-	}
-	size_t z = m - n;
+	if(!file) file = prog; else file++;
+	char const *ext = strrchr(file, '.');
+	if(!ext) ext = strrchr(file, '\0');
+	size_t z = ext - file;
 	char *name = malloc(z+1);
 	if(name) {
-		memcpy(name, prog+n, z);
+		memcpy(name, file, z);
 		name[z] = '\0';
 	}
 	return name;
