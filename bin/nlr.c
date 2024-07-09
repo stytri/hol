@@ -70,7 +70,7 @@ SOFTWARE.
 MWNLIS(512)
 
 #ifndef ROUNDS
-enum { ROUNDS = 29 };
+enum { ROUNDS = 47 };
 #endif
 
 static inline void memzero(void *p, size_t n) {
