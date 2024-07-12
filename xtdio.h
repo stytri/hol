@@ -108,6 +108,8 @@ extern void fatalerror__print_and_abort(char const *file, int line, int errn);
 	fatalerror__print_and_abort(__FILE__, __LINE__, fatalerror__errno ? fatalerror__errno : errno); \
 } while(0)
 
+extern char const *getfilename(char const *filepath, int *baselenp);
+
 //------------------------------------------------------------------------------
 
 static inline int
@@ -619,6 +621,23 @@ fatalerror__print_and_abort(
 	fprintf(stderr, "%s:%i: %s", file, line, strerror(errn));
 	fflush(stderr);
 	abort();
+}
+
+//------------------------------------------------------------------------------
+
+char const *getfilename(char const *filepath, int *baselenp) {
+	char const *file = strrchr(filepath, '/');
+#if defined _WIN32
+	if(!file) file = strrchr(filepath, '\\');
+	if(!file) file = strrchr(filepath, ':');
+#endif
+	if(!file) file = filepath; else file++;
+	if(baselenp) {
+		char const *ext = strrchr(file, '.');
+		if(!ext) ext = strrchr(file, '\0');
+		*baselenp = ext - file;
+	}
+	return file;
 }
 
 //------------------------------------------------------------------------------
