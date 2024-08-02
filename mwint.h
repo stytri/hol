@@ -127,7 +127,7 @@ static inline void mwshr(size_t z, uint64_t v[z], unsigned n) {
 		for(i = 0; i <= w; i++) {
 			v[i] = v[i + l];
 		}
-		for(; i <= z; i++) {
+		for(; i < z; i++) {
 			v[i] = 0;
 		}
 	}
