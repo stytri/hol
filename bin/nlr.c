@@ -156,6 +156,7 @@ static bool encode(size_t z, uint8_t b[z], uint512_t k, XFILE *in, XFILE *out) {
 		if(m < 0) m = 0;
 		fallback_getrandom((uint8_t*)&g + m, sizeof(g) - m, 0);
 	}
+	uint8_t v[8];
 	uint8_t w[64];
 	z = ((z - 56) / 56) * 56;
 	for(bool eof = false; !eof;) {
@@ -178,15 +179,22 @@ static bool encode(size_t z, uint8_t b[z], uint512_t k, XFILE *in, XFILE *out) {
 		}
 		for(size_t m = 0; m < n; m += 56) {
 			uint64_t r = genrand(&g);
-			uint64tobytes(r, &w[0]);
-			memcpy(&w[8], &b[m], 56);
-			uint8_t t = w[0];
-			for(size_t i = 1; i < 8; i++) {
-				size_t j = swapindex(i, t);
-				t    = w[i];
-				w[i] = w[j];
-				w[j] = t;
-			}
+			uint64tobytes(r, &v[0]);
+			size_t  h = 0, i = 0, j = m;
+			uint8_t t = v[h++];
+			w[i++] = t;
+			do {
+				size_t x = t % 8, y = 0;
+				for(; y < x; y++) {
+					w[i++] = b[j++];
+				}
+				t = v[h++];
+				w[i++] = t;
+				for(; y < 8; y++) {
+					w[i++] = b[j++];
+				}
+			} while(i < 64)
+				;
 			uint512_t u = nlis512(uint512frombytes(w), k, ROUNDS);
 			uint512tobytes(u, w);
 			if(xfwrite(w, 1, 64, out) != 64) {
@@ -198,6 +206,7 @@ static bool encode(size_t z, uint8_t b[z], uint512_t k, XFILE *in, XFILE *out) {
 done:
 	memzero(&k, sizeof(k));
 	memzero(&w, sizeof(w));
+	memzero(&v, sizeof(v));
 	memzero(&g, sizeof(g));
 	return ok;
 }
@@ -205,6 +214,7 @@ done:
 static bool decode(size_t z, uint8_t b[z], uint512_t k, XFILE *in, XFILE *out) {
 	bool    ok = false;
 	uint8_t w[64];
+	uint8_t v[56];
 	uint8_t d[56];
 	z = (z / 64) * 64;
 	for(bool buffered = false, eof = false; !eof;) {
@@ -227,13 +237,19 @@ static bool decode(size_t z, uint8_t b[z], uint512_t k, XFILE *in, XFILE *out) {
 		for(size_t m = 0; m < n; m += 64) {
 			uint512_t u = ulis512(uint512frombytes(&b[m]), k, ROUNDS);
 			uint512tobytes(u, &w[0]);
-			uint8_t t = w[0];
-			for(size_t i = 1; i < 8; i++) {
-				size_t j = swapindex(i, t);
-				t    = w[j];
-				w[j] = w[i];
-				w[i] = t;
-			}
+			size_t  i = 0, j = 0;
+			uint8_t t = w[j++];
+			do {
+				size_t x = t % 8, y = 0;
+				for(; y < x; y++) {
+					v[i++] = w[j++];
+				}
+				t = w[j++];
+				for(; y < 8; y++) {
+					v[i++] = w[j++];
+				}
+			} while(i < 56)
+				;
 			if(!buffered) {
 				buffered = true;
 			} else {
@@ -241,7 +257,7 @@ static bool decode(size_t z, uint8_t b[z], uint512_t k, XFILE *in, XFILE *out) {
 					goto done;
 				}
 			}
-			memcpy(d, &w[8], 56);
+			memcpy(d, &v[0], 56);
 		}
 		if(eof && (n > 0)) {
 			for(n = 55; (n > 0) && !(d[n] & 0x80); n--)
@@ -259,6 +275,7 @@ static bool decode(size_t z, uint8_t b[z], uint512_t k, XFILE *in, XFILE *out) {
 done:
 	memzero(&k, sizeof(k));
 	memzero(&w, sizeof(w));
+	memzero(&v, sizeof(v));
 	memzero(&d, sizeof(d));
 	return ok;
 }
