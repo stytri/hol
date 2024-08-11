@@ -141,7 +141,7 @@ struct genrand {
 static uint64_t genrand(void *ctx) {
 	struct genrand *g = ctx;
 	if(g->x > 7) {
-		g->r = nlis512(g->c, g->k, ROUNDS);
+		g->r = nlis512(g->c, g->k, 3*ROUNDS);
 		g->c = inc512(g->c, 1);
 		g->x = 0;
 	}
