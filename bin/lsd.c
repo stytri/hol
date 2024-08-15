@@ -61,6 +61,10 @@ wputs(
 
 //------------------------------------------------------------------------------
 
+#ifdef RELATIVE
+#	undef RELATIVE
+#endif
+
 enum {
 	HIDDEN   = 1 << 0,
 	SYSTEM   = 1 << 1,
