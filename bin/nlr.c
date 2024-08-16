@@ -130,22 +130,18 @@ static inline void uint512tobytes(uint512_t u, uint8_t b[64]) {
 	uint64tobytes(u.u[7], &b[56]);
 }
 
-static inline int swapindex(int i, uint64_t x) {
-	return (i * 8) + ((x ^ (x >> 3) ^ (x >> 5)) & 7);
-}
-
 struct genrand {
-	uint512_t k, c, r;
-	size_t    x;
+	uint512_t k, c;
+	size_t    i;
 };
 static uint64_t genrand(void *ctx) {
 	struct genrand *g = ctx;
-	if(g->x > 7) {
-		g->r = nlis512(g->c, g->k, 3*ROUNDS);
-		g->c = inc512(g->c, 1);
-		g->x = 0;
-	}
-	return g->r.u[g->x++];
+	uint512_t       r = nlis512(g->c, g->k, 3*ROUNDS);
+	g->c              = inc512(g->c, 1);
+	size_t          i = g->i % 8;
+	uint64_t        x = r.u[i];
+	g->i             += x;
+	return x;
 }
 
 static bool encode(size_t z, uint8_t b[z], uint512_t k, XFILE *in, XFILE *out) {
