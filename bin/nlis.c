@@ -218,7 +218,7 @@ main(
 		}
 	}
 
-	int             rounds = 6;
+	int             rounds = 11;
 	uint64_t        salt   = 0;
 	size_t          size   = 0;
 	uint64_t        key[NKEYS];
@@ -228,7 +228,7 @@ main(
 	uint64_t        k = strtoull(non_integer = rsk, &rsk, 0);
 	if(*rsk == ':') {
 		rounds = (k > INT_MAX) ? INT_MAX : (int)k;
-		if(rounds < 1) rounds = 6;
+		if(rounds < 1) rounds = 11;
 		k      = strtoull(non_integer = rsk+1, &rsk, 0);
 	}
 	if(*rsk == '/') {

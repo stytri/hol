@@ -206,7 +206,7 @@ XRAND_WRAPPERS(64)
 
 //==============================================================================
 
-#define NLIS_WRAPPERS(NLIS__Bits) \
+#define NLIS_WRAPPERS(NLIS__Bits,NLIS__Rounds) \
 \
 struct nlis##NLIS__Bits { \
 	uint##NLIS__Bits##_t a[2]; \
@@ -216,7 +216,7 @@ static inline uint64_t \
 nlis##NLIS__Bits##_rand( \
 	struct nlis##NLIS__Bits *r \
 ) { \
-	int                  n = MSBIT(NLIS__Bits); \
+	int                  n = NLIS__Rounds; \
 	uint##NLIS__Bits##_t k = IPOW(UINT##NLIS__Bits##_C(33),NLIS__Bits/5); \
 	uint##NLIS__Bits##_t x = r->a[0]++ ^ r->a[1]; \
 	uint##NLIS__Bits##_t s = nlis##NLIS__Bits(x, k, n); \
@@ -253,10 +253,10 @@ nlis##NLIS__Bits##_init( \
 	xrand_init(s, sizeof(*r), r); \
 }
 
-NLIS_WRAPPERS(8)
-NLIS_WRAPPERS(16)
-NLIS_WRAPPERS(32)
-NLIS_WRAPPERS(64)
+NLIS_WRAPPERS(8,4)
+NLIS_WRAPPERS(16,6)
+NLIS_WRAPPERS(32,7)
+NLIS_WRAPPERS(64,11)
 
 #undef NLIS_WRAPPERS
 

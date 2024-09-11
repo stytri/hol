@@ -139,7 +139,7 @@ nlis##NLIS__Nbits##__round( \
 	x = nlis##NLIS__Nbits##__g(x); \
 	do { \
 		i >>= 1; \
-		x   = rotl##NLIS__Nbits(x, i); \
+		x   = rotr##NLIS__Nbits(x, i); \
 		x   = nlis##NLIS__Nbits##__g(x); \
 	} while(i != 1) \
 		; \
@@ -178,7 +178,7 @@ ulis##NLIS__Nbits##__round( \
 	int i = 1; \
 	do { \
 		x   = ulis##NLIS__Nbits##__g(x); \
-		x   = rotr##NLIS__Nbits(x, i); \
+		x   = rotl##NLIS__Nbits(x, i); \
 		i <<= 1; \
 	} while(i < NLIS__Nbits) \
 		; \

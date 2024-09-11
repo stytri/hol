@@ -52,7 +52,7 @@ nlis##NLIS__Nbits( \
 		mwgry(MWINT_WORDS(NLIS__Nbits), x.u); \
 		do { \
 			i >>= 1; \
-			mwrol(MWINT_WORDS(NLIS__Nbits), x.u, i); \
+			mwror(MWINT_WORDS(NLIS__Nbits), x.u, i); \
 			mwgry(MWINT_WORDS(NLIS__Nbits), x.u); \
 		} while(i != 1) \
 			; \
@@ -82,7 +82,7 @@ ulis##NLIS__Nbits( \
 		unsigned i = 1; \
 		do { \
 			x = ulis##NLIS__Nbits##__g(x); \
-			mwror(MWINT_WORDS(NLIS__Nbits), x.u, i); \
+			mwrol(MWINT_WORDS(NLIS__Nbits), x.u, i); \
 			i <<= 1; \
 		} while(i < NLIS__Nbits) \
 			; \

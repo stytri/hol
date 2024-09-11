@@ -106,7 +106,7 @@ strtoperm(
 		if(*cs == '#') {
 			if(endp) *endp = (char *)cs + 1;
 			permutation[0] = xrandseed();
-			permutation[1] = nlis64(permutation[0], IPOW(UINT64_C(211),8), 6);
+			permutation[1] = nlis64(permutation[0], IPOW(UINT64_C(211),8), 11);
 		} else {
 			char *s;
 			strtouus(cs, &s, base, &permutation[1], &permutation[0]);
