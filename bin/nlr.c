@@ -132,16 +132,13 @@ static inline void uint512tobytes(uint512_t u, uint8_t b[64]) {
 
 struct genrand {
 	uint512_t k, c;
-	size_t    i;
 };
 static uint64_t genrand(void *ctx) {
 	struct genrand *g = ctx;
+	size_t          i = g->k.u[0] % 8;
 	uint512_t       r = nlis512(g->c, g->k, 3*ROUNDS);
 	g->c              = inc512(g->c, 1);
-	size_t          i = g->i % 8;
-	uint64_t        x = r.u[i];
-	g->i             += x;
-	return x;
+	return r.u[i];
 }
 
 static bool encode(size_t z, uint8_t b[z], uint512_t k, XFILE *in, XFILE *out) {
