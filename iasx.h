@@ -64,16 +64,6 @@ static inline void iasx64v##IASX__Vn(uint64_t u[IASX__Vn], uint64_t const k[IASX
 		} \
 	} \
 	return; \
-} \
- \
-static inline void iasx64v##IASX__Vn##x(uint64_t u[IASX__Vn], uint64_t const k[IASX__Vn]) { \
-	iasx64v##IASX__Vn(u, k); \
-	uint64_t u0 = u[0]; \
-	for(unsigned v = 0; v < ((IASX__Vn) - 1); v++) { \
-		u[v] ^= u[v+1]; \
-	} \
-	u[(IASX__Vn) - 1] ^= u0; \
-	return; \
 }
 
 IASX_VECTOR(2)
