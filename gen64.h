@@ -30,7 +30,7 @@ SOFTWARE.
 
 //------------------------------------------------------------------------------
 
-extern uint64_t gen64(uint64_t k, unsigned xw, int xl, int xt) {
+extern uint64_t gen64(uint64_t k, unsigned xw, int xl, int xt);
 
 extern void gen64mw(size_t n, uint64_t u[n], uint64_t const k[n], size_t xw, int xl, int xt);
 
