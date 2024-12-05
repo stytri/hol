@@ -47,6 +47,8 @@ SOFTWARE.
 #endif
 #ifdef _WIN32
 #define TIMESTAMP_PROCTIME  (5)
+#define TIMESTAMP_KERNTIME  (6)
+#define TIMESTAMP_USERTIME  (7)
 #endif
 
 extern void timestamp    (int timer, struct timespec *tp);
@@ -103,6 +105,36 @@ timestamp(
 				uint64_t ut = ((uint64_t)userTime.dwHighDateTime << 32) | userTime.dwLowDateTime;
 				uint64_t kt = ((uint64_t)kernelTime.dwHighDateTime << 32) | kernelTime.dwLowDateTime;
 				uint64_t ct = (ut + kt) * 100;
+				tp->tv_sec  = ct / UINT64_C(1000000000);
+				tp->tv_nsec = ct % UINT64_C(1000000000);
+			}
+		}
+		break;
+#endif
+#ifdef TIMESTAMP_KERNTIME
+	case TIMESTAMP_KERNTIME: {
+			FILETIME createTime;
+			FILETIME exitTime;
+			FILETIME kernelTime;
+			FILETIME userTime;
+			if(GetProcessTimes(GetCurrentProcess(), &createTime, &exitTime, &kernelTime, &userTime)) {
+				uint64_t kt = ((uint64_t)kernelTime.dwHighDateTime << 32) | kernelTime.dwLowDateTime;
+				uint64_t ct = kt * 100;
+				tp->tv_sec  = ct / UINT64_C(1000000000);
+				tp->tv_nsec = ct % UINT64_C(1000000000);
+			}
+		}
+		break;
+#endif
+#ifdef TIMESTAMP_USERTIME
+	case TIMESTAMP_USERTIME: {
+			FILETIME createTime;
+			FILETIME exitTime;
+			FILETIME kernelTime;
+			FILETIME userTime;
+			if(GetProcessTimes(GetCurrentProcess(), &createTime, &exitTime, &kernelTime, &userTime)) {
+				uint64_t ut = ((uint64_t)userTime.dwHighDateTime << 32) | userTime.dwLowDateTime;
+				uint64_t ct = ut * 100;
 				tp->tv_sec  = ct / UINT64_C(1000000000);
 				tp->tv_nsec = ct % UINT64_C(1000000000);
 			}
