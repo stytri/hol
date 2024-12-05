@@ -47,6 +47,7 @@ SOFTWARE.
 #include <hol/optget.h>
 #include <hol/fnmatch.h>
 #include <hol/base64.h>
+#include <hol/gen64.h>
 #include <hol/lebe.h>
 
 //------------------------------------------------------------------------------
