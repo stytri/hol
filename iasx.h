@@ -64,6 +64,38 @@ static inline void iasx64v##IASX__Vn(uint64_t u[IASX__Vn], uint64_t const k[IASX
 		} \
 	} \
 	return; \
+} \
+static inline void iasx64v##IASX__Vn##k1(uint64_t u[IASX__Vn], uint64_t k) { \
+	for(unsigned i = 1; i < 64; i += 9) { \
+		unsigned const j = ((i << 1) ^ i) & 63; \
+		unsigned const l = 64 - j; \
+		for(unsigned v = 0; v < IASX__Vn; v++) { \
+			u[v] += k; \
+			u[v] ^= u[v] << l; \
+			u[v] ^= u[v] >> j; \
+		} \
+	} \
+	return; \
+} \
+static inline void iasx64v##IASX__Vn##c1(uint64_t u[IASX__Vn], uint64_t const k[IASX__Vn], uint64_t c) { \
+	unsigned i = 1; \
+	unsigned const j = ((i << 1) ^ i) & 63; \
+	unsigned const l = 64 - j; \
+	for(unsigned v = 0; v < IASX__Vn; v++) { \
+		u[v]  = c + k[v]; \
+		u[v] ^= u[v] << l; \
+		u[v] ^= u[v] >> j; \
+	} \
+	for(i += 9; i < 64; i += 9) { \
+		unsigned const j = ((i << 1) ^ i) & 63; \
+		unsigned const l = 64 - j; \
+		for(unsigned v = 0; v < IASX__Vn; v++) { \
+			u[v] += k[v]; \
+			u[v] ^= u[v] << l; \
+			u[v] ^= u[v] >> j; \
+		} \
+	} \
+	return; \
 }
 
 IASX_VECTOR(2)
