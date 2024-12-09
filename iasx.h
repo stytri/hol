@@ -52,6 +52,20 @@ static inline uint64_t iasx64(uint64_t u, uint64_t k) {
 	return u;
 }
 
+static inline uint64_t iasx64rev(uint64_t u, uint64_t k) {
+	for(unsigned i = 55; i < 64; i -= 9) {
+		unsigned j = ((i << 1) ^ i) & 63;  // 25, 50, 47, 36, 53, 30, 3
+		for(unsigned n = j; n < (CHAR_BIT * sizeof(u)); n += n) {
+			u ^= u >> n;
+		}
+		for(unsigned n = 64 - j; n < (CHAR_BIT * sizeof(u)); n += n) {
+			u ^= u << n;
+		}
+		u -= k;
+	}
+	return u;
+}
+
 #define IASX_VECTOR(IASX__Vn) \
 static inline void iasx64v##IASX__Vn(uint64_t u[IASX__Vn], uint64_t const k[IASX__Vn]) { \
 	for(unsigned i = 1; i < 64; i += 9) { \
