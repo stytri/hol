@@ -38,6 +38,10 @@ static inline uint64_t iasx64key(uint64_t x) {
 	return gen64(x, 2, 2, 2);
 }
 
+static inline bool isax64badkey(uint64_t u) {
+	return hasrepeathexdigits64(u, 3, 1);
+}
+
 // No anomalies in PractRand (full 32TB run)
 // Passes BigCrush (high and low 32 bits + bytes and bits reversed)
 #define IASX64KEY  UINT64_C(0x5fbd497a9c4312f5)

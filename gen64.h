@@ -27,12 +27,15 @@ SOFTWARE.
 //------------------------------------------------------------------------------
 
 #include <stdint.h>
+#include <stdbool.h>
 
 //------------------------------------------------------------------------------
 
 extern uint64_t gen64(uint64_t k, unsigned xw, int xl, int xt);
 
 extern void gen64mw(size_t n, uint64_t u[n], uint64_t const k[n], size_t xw, int xl, int xt);
+
+extern bool hasrepeathexdigits64(uint64_t u, unsigned n, unsigned e);
 
 //------------------------------------------------------------------------------
 
@@ -156,6 +159,28 @@ void gen64mw(
 	}
 	return;
 }
+
+bool hasrepeathexdigits64(
+	uint64_t u,
+	unsigned n,
+	unsigned e
+) {
+	uint64_t const m = (UINT64_C(1) << (4 * n)) - 1;
+	for(int i = 0, imax = 64 - ((n + 1) * 4); i < imax; i += 4) {
+		uint64_t const b = (u >> i) & m;
+		unsigned       c = 0;
+		for(int j = i + 4, jmax = imax + 4; j < jmax; j += 4) {
+			uint64_t const q = (u >> j) & m;
+			if(b == q) {
+				if(++c > e) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 
 //------------------------------------------------------------------------------
 
