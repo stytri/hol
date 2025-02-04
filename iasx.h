@@ -43,8 +43,8 @@ static inline bool isax64badkey(uint64_t u) {
 }
 
 // No anomalies in PractRand (full 32TB run)
-// Passes BigCrush (high and low 32 bits + bytes and bits reversed)
-#define IASX64KEY  UINT64_C(0x5fbd497a9c4312f5)
+// Passes BigCrush (+ bytes and bits reversed)
+#define IASX64KEY  UINT64_C(2718281828459045235)  // e * 10**18
 
 static inline uint64_t iasx64(uint64_t u, uint64_t k) {
 	for(unsigned i = 1; i < 64; i += 9) {
