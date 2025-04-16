@@ -50,6 +50,33 @@ static char const *out_name   = "";
 static bool        out_ispipe = false;
 
 static int
+mbputs(
+	wchar_t const *ws
+) {
+	static char  *mb    = NULL;
+	static size_t mblen = 0;
+	size_t wlen = wcslen(ws);
+	if(wlen > mblen) {
+		mblen = 4 * wlen;
+		if(mb) {
+			mb = realloc(mb, mblen+1);
+		} else {
+			mb = malloc(mblen+1);
+		}
+		if(!mb) {
+			perror();
+			fail();
+		}
+	}
+	if(wcstombs(mb, ws, mblen) != (size_t)-1) {
+		if(fputs(mb, out) != EOF) {
+			return fputc('\n', out);
+		}
+	}
+	return EOF;
+}
+
+static int
 wputs(
 	wchar_t const *ws
 ) {
@@ -66,11 +93,12 @@ wputs(
 #endif
 
 enum {
-	HIDDEN   = 1 << 0,
-	SYSTEM   = 1 << 1,
-	RELATIVE = 1 << 2,
-	ALTPATH  = 1 << 3,
-	NOINVAL  = 1 << 4,
+	HIDDEN    = 1 << 0,
+	SYSTEM    = 1 << 1,
+	RELATIVE  = 1 << 2,
+	ALTPATH   = 1 << 3,
+	NOINVAL   = 1 << 4,
+	MULTIBYTE = 1 << 5,
 };
 
 static bool
@@ -183,9 +211,17 @@ list_sub_directories__actual(
 	}
 	if(nsub == 0) {
 		if(flags & RELATIVE) {
-			wputs(&(*cwd)[cwdrel]);
+			if(flags & MULTIBYTE) {
+				mbputs(&(*cwd)[cwdrel]);
+			} else {
+				wputs(&(*cwd)[cwdrel]);
+			}
 		} else {
-			wputs(*cwd);
+			if(flags & MULTIBYTE) {
+				mbputs(*cwd);
+			} else {
+				wputs(*cwd);
+			}
 		}
 	}
 	return;
@@ -256,6 +292,7 @@ main(
 		{ 11, "-S, --system",              "show system files" },
 		{ 12, "-r, --relative",            "show relative paths" },
 		{ 13, "-a, --alternate-separator", "show paths separated with '/'" },
+		{ 15, "-m, --multibyte-characters","multibyte character output" },
 		{ 20, "-l, --levels COUNT",        "set level limit to COUNT" },
 		{ 21, "-1",                        "set level limit to 1" },
 		{ 22, "-2",                        "set level limit to 2" },
@@ -309,6 +346,9 @@ main(
 				break;
 			case 14:
 				flags &= ~NOINVAL;
+				break;
+			case 15:
+				flags |= MULTIBYTE;
 				break;
 			case 20:
 				levels = streval(argv[argi], NULL, 0);
